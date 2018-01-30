@@ -1,82 +1,86 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta name="viewport" content="width-device-width"></meta>
-    <link rel="stylesheet" type="text/css" href="index.css"></link>    
-    <script type="text/javascript" src="scripts.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <title>Lars chat user interface</title>
-</head>
-    <body>
+<xhtml xmlns="http://www.w3.org/1999/xhtml"
+       xmlns:h="http://java.sun.com/jsf/html"
+       xmlns:p="http://primefaces.org/ui"
+           
+       xmlns:f="http://xmlns.jcp.org/jsf/core">
 
-    <div class="container">
-        <!-- Trigger the modal with a button -->
-        <button type="button" class="btn btn-info btn-lg" id="loginBtn">Login</button>
+    <h:head>
 
-        <!-- Modal -->
-        <div class="modal fade" id="loginModal" role="dialog">
-          <div class="modal-dialog">
+    </h:head>
 
-            <!-- Modal content-->
-            <div class="modal-content">
-              <div class="modal-header">
-                <h3 class="modal-title">User Info</h3>
-              </div>
-              <div class="modal-body">
-                <div>
-                    <form name="registerUser" action="#{userService.registerUser()}" method="POST">
-                        Username : <input type="text" name="userName"></input><br></br>
-                        Full name : <input type="text" name="fullName"></input><br></br>
-                        Info : <input type="text" name="info"></input><br></br>
-                        Image : <input type="text" name="image"></input><br></br>
-                        <input type="submit" value="Submit"></input>
-                    </form> 
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-    </div>
-        <div>
+    <h:body style="background-color: bisque">
+        <p:layout style="min-width:600px;min-height:200px;">
+ 
+            <p:layoutUnit position="west" resizable="false" size="300" minSize="40" maxSize="200">
+                
+                <p:commandButton value="Login" type="button" onclick="PF('login').show();" />
+                <br></br>
+                <p:commandButton value="Logout" type="submit" action="PF('logout').show();" />
+                <p:dialog header="Login" widgetVar="login" minHeight="40">
+                    <h:form>
+                    <h:outputLabel id="userNameLabel" for="userName">UserName: </h:outputLabel>
+                    <h:inputText id="userName"
+                                 value="#{userService.user.userName}"
+                                 onclick="if (this.value === 'Enter username..'){this.value='';}"
+                                 onblur="if (this.value === ''){this.value='Enter username..';}"/>
+                    <br></br>
+                    <h:outputLabel id="fullNameLabel" for="fullName">Full name: </h:outputLabel>
+                    <h:inputText id="fullName"
+                                 value="#{userService.user.fullName}"
+                                 onclick="if (this.value === 'Enter full name..'){this.value='';}"
+                                 onblur="if (this.value === ''){this.value='Enter full name..';}"/>
+                    <br></br>
+                    <h:outputLabel id="infoLabel" for="info">Info: </h:outputLabel>
+                    <h:inputText id="info"
+                                 value="#{userService.user.info}"
+                                 onclick="if (this.value === 'Enter info..'){this.value='';}"
+                                 onblur="if (this.value === ''){this.value='Enter info..';}"/>
+                    <br></br>
+                    <h:outputLabel id="imageLinkLabel" for="imageLink">Image link: </h:outputLabel>
+                    <h:inputText id="imageLink"
+                                 value="#{userService.user.image}"
+                                 onclick="if (this.value === 'Enter image link..'){this.value='';}"
+                                 onblur="if (this.value === ''){this.value='Enter image link..';}"/>
+                    <br></br>
+                    <h:commandButton id="registerButton" type="submit" value="Register" action="#{userService.registerUser()}">
+                        <f:actionListener binding="#{userService.loadUsers()}"/>
+                        <f:actionListener binding="#{userService.loadChat()}"/>
+                    </h:commandButton>
+                    </h:form>
+                </p:dialog>
+                <p:dialog header="Logout" widgetVar="logout" minHeight="40">
+                    <h:outputText id="loggedOut">You are now logged out!</h:outputText>
+                </p:dialog>
+            </p:layoutUnit>
+
+            <p:layoutUnit position="center">
+                <h1>HEJ</h1>
+            </p:layoutUnit>
+        </p:layout>
+        
+        <p:layout style="min-width:600px;min-height:200px;">
+            <p:layoutUnit position="west" resizable="false" size="300" minSize="40" maxSize="200">
+                <h:form>
+                    <h3 style="margin-top: 0">Users</h3>
+                    <p:orderList value="#{userService.users}" var="users" controlsLocation="none" itemLabel="#{users.userName}" itemValue="#{users.userName}" />
+                </h:form>
+            </p:layoutUnit>
             
-        </div>
-    
-        <div>
-             <button onclick="hideUsers()">Show/hide users</button>
-
-                <div id="users">
-                  This is my DIV element.
-                </div> 
-        </div>
-        <div>
-            <button onclick="#{userService.registerUser()}">Send</button>
-        </div>
+            <p:layoutUnit position="center">
+                <h:form>
+                    <h3 style="margin-top: 0">Public Chat</h3>
+                    <p:dataTable var="publicMessages" value="#{userService.messages}">
+                    <p:column headerText="Username">
+                        <h:outputText value="#{publicMessages.from}"/>
+                    </p:column>
+                    <p:column headerText="Message">
+                        <h:outputText value="#{publicMessages.message}"/>
+                    </p:column>
+                </p:dataTable>
+                </h:form>
+                <p:commandButton value="SendMessage" type="submit" action="#{userService.loadChat()}" />
+            </p:layoutUnit>
+        </p:layout>
         
-        
-<script>
- $(document).ready(function(){
-     $("#loginBtn").click(function(){
-         $("#loginModal").modal();
-     });
- });
- </script> 
-<script>
-    function hideUsers() {
-        var x = document.getElementById("users");
-        if (x.style.display === "none") {
-            x.style.display = "block";
-        } else {
-            x.style.display = "none";
-        }
-    }
-</script>
-       
-</body>
-</html>
+    </h:body>
+</xhtml>
